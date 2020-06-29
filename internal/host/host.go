@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/filanov/bm-inventory/internal/common"
 	"github.com/filanov/bm-inventory/internal/connectivity"
@@ -60,11 +59,6 @@ const (
 	RoleWorker    = "worker"
 )
 
-const (
-	progressDone   = "Done"
-	progressFailed = "Failed"
-)
-
 type API interface {
 	// Register a new host
 	RegisterHost(ctx context.Context, h *models.Host) error
@@ -72,7 +66,7 @@ type API interface {
 	StateAPI
 	InstructionApi
 	SpecificHardwareParams
-	UpdateInstallProgress(ctx context.Context, h *models.Host, progress string) error
+	UpdateInstallProgress(ctx context.Context, h *models.Host, progress *models.HostInstallProgressParams) error
 	SetBootstrap(ctx context.Context, h *models.Host, isbootstrap bool, db *gorm.DB) error
 	UpdateConnectivityReport(ctx context.Context, h *models.Host, connectivityReport string) error
 	HostMonitoring()
@@ -226,28 +220,28 @@ func (m *Manager) ValidateCurrentInventory(host *models.Host, cluster *common.Cl
 	return m.hwValidator.IsSufficient(host, cluster)
 }
 
-func (m *Manager) UpdateInstallProgress(ctx context.Context, h *models.Host, progress string) error {
+func (m *Manager) UpdateInstallProgress(ctx context.Context, h *models.Host, progress *models.HostInstallProgressParams) error {
 	if swag.StringValue(h.Status) != HostStatusInstalling && swag.StringValue(h.Status) != HostStatusInstallingInProgress {
 		return fmt.Errorf("can't set progress to host in status <%s>", swag.StringValue(h.Status))
 	}
 
-	// installation done
-	if progress == progressDone {
-		_, err := updateStateWithParams(logutil.FromContext(ctx, m.log),
-			HostStatusInstalled, HostStatusInstalled, h, m.db)
-		return err
+	statusInfo := *progress.ProgressStatus
+
+	if progress.ProgressInfo != "" {
+		statusInfo += fmt.Sprintf(" - %s", progress.ProgressInfo)
 	}
 
-	// installation failed
-	if strings.HasPrefix(progress, progressFailed) {
-		_, err := updateStateWithParams(logutil.FromContext(ctx, m.log),
-			HostStatusError, progress, h, m.db)
+	switch *progress.ProgressStatus {
+	case models.HostInstallProgressParamsProgressStatusDone:
+		_, err := updateStateWithParams(logutil.FromContext(ctx, m.log), HostStatusInstalled, statusInfo, h, m.db)
+		return err
+	case models.HostInstallProgressParamsProgressStatusFailed:
+		_, err := updateStateWithParams(logutil.FromContext(ctx, m.log), HostStatusError, statusInfo, h, m.db)
+		return err
+	default:
+		_, err := updateStateWithParams(logutil.FromContext(ctx, m.log), HostStatusInstallingInProgress, statusInfo, h, m.db)
 		return err
 	}
-
-	_, err := updateStateWithParams(logutil.FromContext(ctx, m.log),
-		HostStatusInstallingInProgress, progress, h, m.db)
-	return err
 }
 
 func (m *Manager) SetBootstrap(ctx context.Context, h *models.Host, isbootstrap bool, db *gorm.DB) error {
