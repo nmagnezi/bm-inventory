@@ -6,99 +6,16 @@ package installer
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
+	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-//go:generate mockery -name API -inpkg
-
-// API is the interface of the installer client
-type API interface {
-	/*
-	   CancelInstallation cancels an ongoing installation*/
-	CancelInstallation(ctx context.Context, params *CancelInstallationParams) (*CancelInstallationAccepted, error)
-	/*
-	   DeregisterCluster deletes an open shift bare metal cluster definition*/
-	DeregisterCluster(ctx context.Context, params *DeregisterClusterParams) (*DeregisterClusterNoContent, error)
-	/*
-	   DeregisterHost deregisters an open shift bare metal host*/
-	DeregisterHost(ctx context.Context, params *DeregisterHostParams) (*DeregisterHostNoContent, error)
-	/*
-	   DisableHost disables a host for inclusion in the cluster*/
-	DisableHost(ctx context.Context, params *DisableHostParams) (*DisableHostNoContent, error)
-	/*
-	   DownloadClusterFiles downloads files relating to the installed installing cluster*/
-	DownloadClusterFiles(ctx context.Context, params *DownloadClusterFilesParams, writer io.Writer) (*DownloadClusterFilesOK, error)
-	/*
-	   DownloadClusterISO downloads the open shift per cluster discovery i s o*/
-	DownloadClusterISO(ctx context.Context, params *DownloadClusterISOParams, writer io.Writer) (*DownloadClusterISOOK, error)
-	/*
-	   DownloadClusterKubeconfig downloads the kubeconfig file for this cluster*/
-	DownloadClusterKubeconfig(ctx context.Context, params *DownloadClusterKubeconfigParams, writer io.Writer) (*DownloadClusterKubeconfigOK, error)
-	/*
-	   EnableHost enables a host for inclusion in the cluster*/
-	EnableHost(ctx context.Context, params *EnableHostParams) (*EnableHostNoContent, error)
-	/*
-	   GenerateClusterISO creates a new open shift per cluster discovery i s o*/
-	GenerateClusterISO(ctx context.Context, params *GenerateClusterISOParams) (*GenerateClusterISOCreated, error)
-	/*
-	   GetCluster retrieves the details of the open shift bare metal cluster*/
-	GetCluster(ctx context.Context, params *GetClusterParams) (*GetClusterOK, error)
-	/*
-	   GetCredentials gets the the cluster admin credentials*/
-	GetCredentials(ctx context.Context, params *GetCredentialsParams) (*GetCredentialsOK, error)
-	/*
-	   GetHost retrieves the details of the open shift bare metal host*/
-	GetHost(ctx context.Context, params *GetHostParams) (*GetHostOK, error)
-	/*
-	   GetNextSteps retrieves the next operations that the host agent needs to perform*/
-	GetNextSteps(ctx context.Context, params *GetNextStepsParams) (*GetNextStepsOK, error)
-	/*
-	   InstallCluster installs the open shift bare metal cluster*/
-	InstallCluster(ctx context.Context, params *InstallClusterParams) (*InstallClusterAccepted, error)
-	/*
-	   ListClusters retrieves the list of open shift bare metal clusters*/
-	ListClusters(ctx context.Context, params *ListClustersParams) (*ListClustersOK, error)
-	/*
-	   ListHosts retrieves the list of open shift bare metal hosts*/
-	ListHosts(ctx context.Context, params *ListHostsParams) (*ListHostsOK, error)
-	/*
-	   PostStepReply posts the result of the operations from the host agent*/
-	PostStepReply(ctx context.Context, params *PostStepReplyParams) (*PostStepReplyNoContent, error)
-	/*
-	   RegisterCluster creates a new open shift bare metal cluster definition*/
-	RegisterCluster(ctx context.Context, params *RegisterClusterParams) (*RegisterClusterCreated, error)
-	/*
-	   RegisterHost registers a new open shift bare metal host*/
-	RegisterHost(ctx context.Context, params *RegisterHostParams) (*RegisterHostCreated, error)
-	/*
-	   ResetCluster resets a failed installation*/
-	ResetCluster(ctx context.Context, params *ResetClusterParams) (*ResetClusterAccepted, error)
-	/*
-	   SetDebugStep sets a single shot debug step that will be sent next time the host agent will ask for a command*/
-	SetDebugStep(ctx context.Context, params *SetDebugStepParams) (*SetDebugStepNoContent, error)
-	/*
-	   UpdateCluster updates an open shift bare metal cluster definition*/
-	UpdateCluster(ctx context.Context, params *UpdateClusterParams) (*UpdateClusterCreated, error)
-	/*
-	   UpdateHostInstallProgress updates installation progress*/
-	UpdateHostInstallProgress(ctx context.Context, params *UpdateHostInstallProgressParams) (*UpdateHostInstallProgressOK, error)
-	/*
-	   UploadClusterIngressCert transfers the ingress certificate for the cluster*/
-	UploadClusterIngressCert(ctx context.Context, params *UploadClusterIngressCertParams) (*UploadClusterIngressCertCreated, error)
-}
-
 // New creates a new installer API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry, authInfo runtime.ClientAuthInfoWriter) *Client {
-	return &Client{
-		transport: transport,
-		formats:   formats,
-		authInfo:  authInfo,
-	}
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
+	return &Client{transport: transport, formats: formats}
 }
 
 /*
@@ -107,13 +24,69 @@ Client for installer API
 type Client struct {
 	transport runtime.ClientTransport
 	formats   strfmt.Registry
-	authInfo  runtime.ClientAuthInfoWriter
+}
+
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CancelInstallation(params *CancelInstallationParams) (*CancelInstallationAccepted, error)
+
+	DeregisterCluster(params *DeregisterClusterParams) (*DeregisterClusterNoContent, error)
+
+	DeregisterHost(params *DeregisterHostParams) (*DeregisterHostNoContent, error)
+
+	DisableHost(params *DisableHostParams) (*DisableHostNoContent, error)
+
+	DownloadClusterFiles(params *DownloadClusterFilesParams, writer io.Writer) (*DownloadClusterFilesOK, error)
+
+	DownloadClusterISO(params *DownloadClusterISOParams, writer io.Writer) (*DownloadClusterISOOK, error)
+
+	DownloadClusterKubeconfig(params *DownloadClusterKubeconfigParams, writer io.Writer) (*DownloadClusterKubeconfigOK, error)
+
+	EnableHost(params *EnableHostParams) (*EnableHostNoContent, error)
+
+	GenerateClusterISO(params *GenerateClusterISOParams) (*GenerateClusterISOCreated, error)
+
+	GetCluster(params *GetClusterParams) (*GetClusterOK, error)
+
+	GetCredentials(params *GetCredentialsParams) (*GetCredentialsOK, error)
+
+	GetHost(params *GetHostParams) (*GetHostOK, error)
+
+	GetNextSteps(params *GetNextStepsParams) (*GetNextStepsOK, error)
+
+	InstallCluster(params *InstallClusterParams) (*InstallClusterAccepted, error)
+
+	ListClusters(params *ListClustersParams, authInfo runtime.ClientAuthInfoWriter) (*ListClustersOK, error)
+
+	ListHosts(params *ListHostsParams) (*ListHostsOK, error)
+
+	PostStepReply(params *PostStepReplyParams) (*PostStepReplyNoContent, error)
+
+	RegisterCluster(params *RegisterClusterParams) (*RegisterClusterCreated, error)
+
+	RegisterHost(params *RegisterHostParams) (*RegisterHostCreated, error)
+
+	ResetCluster(params *ResetClusterParams) (*ResetClusterAccepted, error)
+
+	SetDebugStep(params *SetDebugStepParams) (*SetDebugStepNoContent, error)
+
+	UpdateCluster(params *UpdateClusterParams) (*UpdateClusterCreated, error)
+
+	UpdateHostInstallProgress(params *UpdateHostInstallProgressParams) (*UpdateHostInstallProgressOK, error)
+
+	UploadClusterIngressCert(params *UploadClusterIngressCertParams) (*UploadClusterIngressCertCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-CancelInstallation cancels an ongoing installation
+  CancelInstallation cancels an ongoing installation
 */
-func (a *Client) CancelInstallation(ctx context.Context, params *CancelInstallationParams) (*CancelInstallationAccepted, error) {
+func (a *Client) CancelInstallation(params *CancelInstallationParams) (*CancelInstallationAccepted, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCancelInstallationParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CancelInstallation",
@@ -124,20 +97,30 @@ func (a *Client) CancelInstallation(ctx context.Context, params *CancelInstallat
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CancelInstallationReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CancelInstallationAccepted), nil
-
+	success, ok := result.(*CancelInstallationAccepted)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for CancelInstallation: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DeregisterCluster deletes an open shift bare metal cluster definition
+  DeregisterCluster deletes an open shift bare metal cluster definition
 */
-func (a *Client) DeregisterCluster(ctx context.Context, params *DeregisterClusterParams) (*DeregisterClusterNoContent, error) {
+func (a *Client) DeregisterCluster(params *DeregisterClusterParams) (*DeregisterClusterNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeregisterClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DeregisterCluster",
@@ -148,20 +131,30 @@ func (a *Client) DeregisterCluster(ctx context.Context, params *DeregisterCluste
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DeregisterClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeregisterClusterNoContent), nil
-
+	success, ok := result.(*DeregisterClusterNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DeregisterCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DeregisterHost deregisters an open shift bare metal host
+  DeregisterHost deregisters an open shift bare metal host
 */
-func (a *Client) DeregisterHost(ctx context.Context, params *DeregisterHostParams) (*DeregisterHostNoContent, error) {
+func (a *Client) DeregisterHost(params *DeregisterHostParams) (*DeregisterHostNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeregisterHostParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DeregisterHost",
@@ -172,20 +165,30 @@ func (a *Client) DeregisterHost(ctx context.Context, params *DeregisterHostParam
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DeregisterHostReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeregisterHostNoContent), nil
-
+	success, ok := result.(*DeregisterHostNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DeregisterHost: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DisableHost disables a host for inclusion in the cluster
+  DisableHost disables a host for inclusion in the cluster
 */
-func (a *Client) DisableHost(ctx context.Context, params *DisableHostParams) (*DisableHostNoContent, error) {
+func (a *Client) DisableHost(params *DisableHostParams) (*DisableHostNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDisableHostParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DisableHost",
@@ -196,20 +199,30 @@ func (a *Client) DisableHost(ctx context.Context, params *DisableHostParams) (*D
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DisableHostReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DisableHostNoContent), nil
-
+	success, ok := result.(*DisableHostNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DisableHost: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DownloadClusterFiles downloads files relating to the installed installing cluster
+  DownloadClusterFiles downloads files relating to the installed installing cluster
 */
-func (a *Client) DownloadClusterFiles(ctx context.Context, params *DownloadClusterFilesParams, writer io.Writer) (*DownloadClusterFilesOK, error) {
+func (a *Client) DownloadClusterFiles(params *DownloadClusterFilesParams, writer io.Writer) (*DownloadClusterFilesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDownloadClusterFilesParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DownloadClusterFiles",
@@ -220,20 +233,30 @@ func (a *Client) DownloadClusterFiles(ctx context.Context, params *DownloadClust
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DownloadClusterFilesReader{formats: a.formats, writer: writer},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DownloadClusterFilesOK), nil
-
+	success, ok := result.(*DownloadClusterFilesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DownloadClusterFiles: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DownloadClusterISO downloads the open shift per cluster discovery i s o
+  DownloadClusterISO downloads the open shift per cluster discovery i s o
 */
-func (a *Client) DownloadClusterISO(ctx context.Context, params *DownloadClusterISOParams, writer io.Writer) (*DownloadClusterISOOK, error) {
+func (a *Client) DownloadClusterISO(params *DownloadClusterISOParams, writer io.Writer) (*DownloadClusterISOOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDownloadClusterISOParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DownloadClusterISO",
@@ -244,20 +267,30 @@ func (a *Client) DownloadClusterISO(ctx context.Context, params *DownloadCluster
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DownloadClusterISOReader{formats: a.formats, writer: writer},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DownloadClusterISOOK), nil
-
+	success, ok := result.(*DownloadClusterISOOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DownloadClusterISO: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-DownloadClusterKubeconfig downloads the kubeconfig file for this cluster
+  DownloadClusterKubeconfig downloads the kubeconfig file for this cluster
 */
-func (a *Client) DownloadClusterKubeconfig(ctx context.Context, params *DownloadClusterKubeconfigParams, writer io.Writer) (*DownloadClusterKubeconfigOK, error) {
+func (a *Client) DownloadClusterKubeconfig(params *DownloadClusterKubeconfigParams, writer io.Writer) (*DownloadClusterKubeconfigOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDownloadClusterKubeconfigParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DownloadClusterKubeconfig",
@@ -268,20 +301,30 @@ func (a *Client) DownloadClusterKubeconfig(ctx context.Context, params *Download
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DownloadClusterKubeconfigReader{formats: a.formats, writer: writer},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DownloadClusterKubeconfigOK), nil
-
+	success, ok := result.(*DownloadClusterKubeconfigOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DownloadClusterKubeconfig: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-EnableHost enables a host for inclusion in the cluster
+  EnableHost enables a host for inclusion in the cluster
 */
-func (a *Client) EnableHost(ctx context.Context, params *EnableHostParams) (*EnableHostNoContent, error) {
+func (a *Client) EnableHost(params *EnableHostParams) (*EnableHostNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewEnableHostParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "EnableHost",
@@ -292,20 +335,30 @@ func (a *Client) EnableHost(ctx context.Context, params *EnableHostParams) (*Ena
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &EnableHostReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*EnableHostNoContent), nil
-
+	success, ok := result.(*EnableHostNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for EnableHost: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GenerateClusterISO creates a new open shift per cluster discovery i s o
+  GenerateClusterISO creates a new open shift per cluster discovery i s o
 */
-func (a *Client) GenerateClusterISO(ctx context.Context, params *GenerateClusterISOParams) (*GenerateClusterISOCreated, error) {
+func (a *Client) GenerateClusterISO(params *GenerateClusterISOParams) (*GenerateClusterISOCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGenerateClusterISOParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GenerateClusterISO",
@@ -316,20 +369,30 @@ func (a *Client) GenerateClusterISO(ctx context.Context, params *GenerateCluster
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GenerateClusterISOReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GenerateClusterISOCreated), nil
-
+	success, ok := result.(*GenerateClusterISOCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GenerateClusterISO: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GetCluster retrieves the details of the open shift bare metal cluster
+  GetCluster retrieves the details of the open shift bare metal cluster
 */
-func (a *Client) GetCluster(ctx context.Context, params *GetClusterParams) (*GetClusterOK, error) {
+func (a *Client) GetCluster(params *GetClusterParams) (*GetClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetCluster",
@@ -340,20 +403,30 @@ func (a *Client) GetCluster(ctx context.Context, params *GetClusterParams) (*Get
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetClusterOK), nil
-
+	success, ok := result.(*GetClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GetCredentials gets the the cluster admin credentials
+  GetCredentials gets the the cluster admin credentials
 */
-func (a *Client) GetCredentials(ctx context.Context, params *GetCredentialsParams) (*GetCredentialsOK, error) {
+func (a *Client) GetCredentials(params *GetCredentialsParams) (*GetCredentialsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetCredentialsParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetCredentials",
@@ -364,20 +437,30 @@ func (a *Client) GetCredentials(ctx context.Context, params *GetCredentialsParam
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetCredentialsReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetCredentialsOK), nil
-
+	success, ok := result.(*GetCredentialsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetCredentials: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GetHost retrieves the details of the open shift bare metal host
+  GetHost retrieves the details of the open shift bare metal host
 */
-func (a *Client) GetHost(ctx context.Context, params *GetHostParams) (*GetHostOK, error) {
+func (a *Client) GetHost(params *GetHostParams) (*GetHostOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetHostParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetHost",
@@ -388,20 +471,30 @@ func (a *Client) GetHost(ctx context.Context, params *GetHostParams) (*GetHostOK
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetHostReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetHostOK), nil
-
+	success, ok := result.(*GetHostOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetHost: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GetNextSteps retrieves the next operations that the host agent needs to perform
+  GetNextSteps retrieves the next operations that the host agent needs to perform
 */
-func (a *Client) GetNextSteps(ctx context.Context, params *GetNextStepsParams) (*GetNextStepsOK, error) {
+func (a *Client) GetNextSteps(params *GetNextStepsParams) (*GetNextStepsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetNextStepsParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetNextSteps",
@@ -412,20 +505,30 @@ func (a *Client) GetNextSteps(ctx context.Context, params *GetNextStepsParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetNextStepsReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetNextStepsOK), nil
-
+	success, ok := result.(*GetNextStepsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetNextSteps: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-InstallCluster installs the open shift bare metal cluster
+  InstallCluster installs the open shift bare metal cluster
 */
-func (a *Client) InstallCluster(ctx context.Context, params *InstallClusterParams) (*InstallClusterAccepted, error) {
+func (a *Client) InstallCluster(params *InstallClusterParams) (*InstallClusterAccepted, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewInstallClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "InstallCluster",
@@ -436,20 +539,30 @@ func (a *Client) InstallCluster(ctx context.Context, params *InstallClusterParam
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &InstallClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*InstallClusterAccepted), nil
-
+	success, ok := result.(*InstallClusterAccepted)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for InstallCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-ListClusters retrieves the list of open shift bare metal clusters
+  ListClusters retrieves the list of open shift bare metal clusters
 */
-func (a *Client) ListClusters(ctx context.Context, params *ListClustersParams) (*ListClustersOK, error) {
+func (a *Client) ListClusters(params *ListClustersParams, authInfo runtime.ClientAuthInfoWriter) (*ListClustersOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListClustersParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListClusters",
@@ -460,20 +573,31 @@ func (a *Client) ListClusters(ctx context.Context, params *ListClustersParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListClustersReader{formats: a.formats},
-		Context:            ctx,
+		AuthInfo:           authInfo,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListClustersOK), nil
-
+	success, ok := result.(*ListClustersOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ListClusters: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-ListHosts retrieves the list of open shift bare metal hosts
+  ListHosts retrieves the list of open shift bare metal hosts
 */
-func (a *Client) ListHosts(ctx context.Context, params *ListHostsParams) (*ListHostsOK, error) {
+func (a *Client) ListHosts(params *ListHostsParams) (*ListHostsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListHostsParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListHosts",
@@ -484,20 +608,30 @@ func (a *Client) ListHosts(ctx context.Context, params *ListHostsParams) (*ListH
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListHostsReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListHostsOK), nil
-
+	success, ok := result.(*ListHostsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ListHosts: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-PostStepReply posts the result of the operations from the host agent
+  PostStepReply posts the result of the operations from the host agent
 */
-func (a *Client) PostStepReply(ctx context.Context, params *PostStepReplyParams) (*PostStepReplyNoContent, error) {
+func (a *Client) PostStepReply(params *PostStepReplyParams) (*PostStepReplyNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPostStepReplyParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "PostStepReply",
@@ -508,20 +642,30 @@ func (a *Client) PostStepReply(ctx context.Context, params *PostStepReplyParams)
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &PostStepReplyReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*PostStepReplyNoContent), nil
-
+	success, ok := result.(*PostStepReplyNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for PostStepReply: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-RegisterCluster creates a new open shift bare metal cluster definition
+  RegisterCluster creates a new open shift bare metal cluster definition
 */
-func (a *Client) RegisterCluster(ctx context.Context, params *RegisterClusterParams) (*RegisterClusterCreated, error) {
+func (a *Client) RegisterCluster(params *RegisterClusterParams) (*RegisterClusterCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRegisterClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RegisterCluster",
@@ -532,20 +676,30 @@ func (a *Client) RegisterCluster(ctx context.Context, params *RegisterClusterPar
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &RegisterClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RegisterClusterCreated), nil
-
+	success, ok := result.(*RegisterClusterCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for RegisterCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-RegisterHost registers a new open shift bare metal host
+  RegisterHost registers a new open shift bare metal host
 */
-func (a *Client) RegisterHost(ctx context.Context, params *RegisterHostParams) (*RegisterHostCreated, error) {
+func (a *Client) RegisterHost(params *RegisterHostParams) (*RegisterHostCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRegisterHostParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RegisterHost",
@@ -556,20 +710,30 @@ func (a *Client) RegisterHost(ctx context.Context, params *RegisterHostParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &RegisterHostReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RegisterHostCreated), nil
-
+	success, ok := result.(*RegisterHostCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for RegisterHost: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-ResetCluster resets a failed installation
+  ResetCluster resets a failed installation
 */
-func (a *Client) ResetCluster(ctx context.Context, params *ResetClusterParams) (*ResetClusterAccepted, error) {
+func (a *Client) ResetCluster(params *ResetClusterParams) (*ResetClusterAccepted, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewResetClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ResetCluster",
@@ -580,20 +744,30 @@ func (a *Client) ResetCluster(ctx context.Context, params *ResetClusterParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ResetClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ResetClusterAccepted), nil
-
+	success, ok := result.(*ResetClusterAccepted)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ResetCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-SetDebugStep sets a single shot debug step that will be sent next time the host agent will ask for a command
+  SetDebugStep sets a single shot debug step that will be sent next time the host agent will ask for a command
 */
-func (a *Client) SetDebugStep(ctx context.Context, params *SetDebugStepParams) (*SetDebugStepNoContent, error) {
+func (a *Client) SetDebugStep(params *SetDebugStepParams) (*SetDebugStepNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSetDebugStepParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "SetDebugStep",
@@ -604,20 +778,30 @@ func (a *Client) SetDebugStep(ctx context.Context, params *SetDebugStepParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &SetDebugStepReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*SetDebugStepNoContent), nil
-
+	success, ok := result.(*SetDebugStepNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for SetDebugStep: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-UpdateCluster updates an open shift bare metal cluster definition
+  UpdateCluster updates an open shift bare metal cluster definition
 */
-func (a *Client) UpdateCluster(ctx context.Context, params *UpdateClusterParams) (*UpdateClusterCreated, error) {
+func (a *Client) UpdateCluster(params *UpdateClusterParams) (*UpdateClusterCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateClusterParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UpdateCluster",
@@ -628,20 +812,30 @@ func (a *Client) UpdateCluster(ctx context.Context, params *UpdateClusterParams)
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &UpdateClusterReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateClusterCreated), nil
-
+	success, ok := result.(*UpdateClusterCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for UpdateCluster: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-UpdateHostInstallProgress updates installation progress
+  UpdateHostInstallProgress updates installation progress
 */
-func (a *Client) UpdateHostInstallProgress(ctx context.Context, params *UpdateHostInstallProgressParams) (*UpdateHostInstallProgressOK, error) {
+func (a *Client) UpdateHostInstallProgress(params *UpdateHostInstallProgressParams) (*UpdateHostInstallProgressOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateHostInstallProgressParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UpdateHostInstallProgress",
@@ -652,20 +846,30 @@ func (a *Client) UpdateHostInstallProgress(ctx context.Context, params *UpdateHo
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &UpdateHostInstallProgressReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateHostInstallProgressOK), nil
-
+	success, ok := result.(*UpdateHostInstallProgressOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for UpdateHostInstallProgress: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-UploadClusterIngressCert transfers the ingress certificate for the cluster
+  UploadClusterIngressCert transfers the ingress certificate for the cluster
 */
-func (a *Client) UploadClusterIngressCert(ctx context.Context, params *UploadClusterIngressCertParams) (*UploadClusterIngressCertCreated, error) {
+func (a *Client) UploadClusterIngressCert(params *UploadClusterIngressCertParams) (*UploadClusterIngressCertCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUploadClusterIngressCertParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "UploadClusterIngressCert",
@@ -676,12 +880,23 @@ func (a *Client) UploadClusterIngressCert(ctx context.Context, params *UploadClu
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &UploadClusterIngressCertReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UploadClusterIngressCertCreated), nil
+	success, ok := result.(*UploadClusterIngressCertCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for UploadClusterIngressCert: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
 
+// SetTransport changes the transport on the client
+func (a *Client) SetTransport(transport runtime.ClientTransport) {
+	a.transport = transport
 }

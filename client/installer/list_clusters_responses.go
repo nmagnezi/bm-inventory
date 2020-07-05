@@ -29,6 +29,12 @@ func (o *ListClustersReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+	case 401:
+		result := NewListClustersUnauthorized()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewListClustersInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -66,6 +72,39 @@ func (o *ListClustersOK) readResponse(response runtime.ClientResponse, consumer 
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListClustersUnauthorized creates a ListClustersUnauthorized with default headers values
+func NewListClustersUnauthorized() *ListClustersUnauthorized {
+	return &ListClustersUnauthorized{}
+}
+
+/*ListClustersUnauthorized handles this case with default header values.
+
+Error.
+*/
+type ListClustersUnauthorized struct {
+	Payload *models.Error
+}
+
+func (o *ListClustersUnauthorized) Error() string {
+	return fmt.Sprintf("[GET /clusters][%d] listClustersUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *ListClustersUnauthorized) GetPayload() *models.Error {
+	return o.Payload
+}
+
+func (o *ListClustersUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

@@ -60,6 +60,50 @@ func (o *ListClustersOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
+// ListClustersUnauthorizedCode is the HTTP code returned for type ListClustersUnauthorized
+const ListClustersUnauthorizedCode int = 401
+
+/*ListClustersUnauthorized Error.
+
+swagger:response listClustersUnauthorized
+*/
+type ListClustersUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.Error `json:"body,omitempty"`
+}
+
+// NewListClustersUnauthorized creates ListClustersUnauthorized with default headers values
+func NewListClustersUnauthorized() *ListClustersUnauthorized {
+
+	return &ListClustersUnauthorized{}
+}
+
+// WithPayload adds the payload to the list clusters unauthorized response
+func (o *ListClustersUnauthorized) WithPayload(payload *models.Error) *ListClustersUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the list clusters unauthorized response
+func (o *ListClustersUnauthorized) SetPayload(payload *models.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ListClustersUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // ListClustersInternalServerErrorCode is the HTTP code returned for type ListClustersInternalServerError
 const ListClustersInternalServerErrorCode int = 500
 

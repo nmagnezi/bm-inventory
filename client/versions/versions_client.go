@@ -6,29 +6,15 @@ package versions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
+	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-//go:generate mockery -name API -inpkg
-
-// API is the interface of the versions client
-type API interface {
-	/*
-	   ListComponentVersions lists of componenets versions*/
-	ListComponentVersions(ctx context.Context, params *ListComponentVersionsParams) (*ListComponentVersionsOK, error)
-}
-
 // New creates a new versions API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry, authInfo runtime.ClientAuthInfoWriter) *Client {
-	return &Client{
-		transport: transport,
-		formats:   formats,
-		authInfo:  authInfo,
-	}
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
+	return &Client{transport: transport, formats: formats}
 }
 
 /*
@@ -37,13 +23,23 @@ Client for versions API
 type Client struct {
 	transport runtime.ClientTransport
 	formats   strfmt.Registry
-	authInfo  runtime.ClientAuthInfoWriter
+}
+
+// ClientService is the interface for Client methods
+type ClientService interface {
+	ListComponentVersions(params *ListComponentVersionsParams) (*ListComponentVersionsOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-ListComponentVersions lists of componenets versions
+  ListComponentVersions lists of componenets versions
 */
-func (a *Client) ListComponentVersions(ctx context.Context, params *ListComponentVersionsParams) (*ListComponentVersionsOK, error) {
+func (a *Client) ListComponentVersions(params *ListComponentVersionsParams) (*ListComponentVersionsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListComponentVersionsParams()
+	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListComponentVersions",
@@ -54,12 +50,23 @@ func (a *Client) ListComponentVersions(ctx context.Context, params *ListComponen
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListComponentVersionsReader{formats: a.formats},
-		Context:            ctx,
+		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListComponentVersionsOK), nil
+	success, ok := result.(*ListComponentVersionsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ListComponentVersions: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
 
+// SetTransport changes the transport on the client
+func (a *Client) SetTransport(transport runtime.ClientTransport) {
+	a.transport = transport
 }

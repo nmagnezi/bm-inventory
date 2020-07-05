@@ -6,17 +6,17 @@ package client
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"net/http"
-	"net/url"
-
 	"github.com/go-openapi/runtime"
-	rtclient "github.com/go-openapi/runtime/client"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
 	"github.com/filanov/bm-inventory/client/events"
 	"github.com/filanov/bm-inventory/client/installer"
 	"github.com/filanov/bm-inventory/client/versions"
 )
+
+// Default assisted install HTTP client.
+var Default = NewHTTPClient(nil)
 
 const (
 	// DefaultHost is the default Host
@@ -30,46 +30,93 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http"}
 
-type Config struct {
-	// URL is the base URL of the upstream server
-	URL *url.URL
-	// Transport is an inner transport for the client
-	Transport http.RoundTripper
-	// AuthInfo is for authentication
-	AuthInfo runtime.ClientAuthInfoWriter
+// NewHTTPClient creates a new assisted install HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *AssistedInstall {
+	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// New creates a new assisted install HTTP client.
-func New(c Config) *AssistedInstall {
-	var (
-		host     = DefaultHost
-		basePath = DefaultBasePath
-		schemes  = DefaultSchemes
-	)
-
-	if c.URL != nil {
-		host = c.URL.Host
-		basePath = c.URL.Path
-		schemes = []string{c.URL.Scheme}
+// NewHTTPClientWithConfig creates a new assisted install HTTP client,
+// using a customizable transport config.
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *AssistedInstall {
+	// ensure nullable parameters have default
+	if cfg == nil {
+		cfg = DefaultTransportConfig()
 	}
 
-	transport := rtclient.New(host, basePath, schemes)
-	if c.Transport != nil {
-		transport.Transport = c.Transport
+	// create transport and client
+	transport := httptransport.New(cfg.Host, cfg.BasePath, cfg.Schemes)
+	return New(transport, formats)
+}
+
+// New creates a new assisted install client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *AssistedInstall {
+	// ensure nullable parameters have default
+	if formats == nil {
+		formats = strfmt.Default
 	}
 
 	cli := new(AssistedInstall)
 	cli.Transport = transport
-	cli.Events = events.New(transport, strfmt.Default, c.AuthInfo)
-	cli.Installer = installer.New(transport, strfmt.Default, c.AuthInfo)
-	cli.Versions = versions.New(transport, strfmt.Default, c.AuthInfo)
+	cli.Events = events.New(transport, formats)
+	cli.Installer = installer.New(transport, formats)
+	cli.Versions = versions.New(transport, formats)
 	return cli
+}
+
+// DefaultTransportConfig creates a TransportConfig with the
+// default settings taken from the meta section of the spec file.
+func DefaultTransportConfig() *TransportConfig {
+	return &TransportConfig{
+		Host:     DefaultHost,
+		BasePath: DefaultBasePath,
+		Schemes:  DefaultSchemes,
+	}
+}
+
+// TransportConfig contains the transport related info,
+// found in the meta section of the spec file.
+type TransportConfig struct {
+	Host     string
+	BasePath string
+	Schemes  []string
+}
+
+// WithHost overrides the default host,
+// provided by the meta section of the spec file.
+func (cfg *TransportConfig) WithHost(host string) *TransportConfig {
+	cfg.Host = host
+	return cfg
+}
+
+// WithBasePath overrides the default basePath,
+// provided by the meta section of the spec file.
+func (cfg *TransportConfig) WithBasePath(basePath string) *TransportConfig {
+	cfg.BasePath = basePath
+	return cfg
+}
+
+// WithSchemes overrides the default schemes,
+// provided by the meta section of the spec file.
+func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
+	cfg.Schemes = schemes
+	return cfg
 }
 
 // AssistedInstall is a client for assisted install
 type AssistedInstall struct {
-	Events    *events.Client
-	Installer *installer.Client
-	Versions  *versions.Client
+	Events events.ClientService
+
+	Installer installer.ClientService
+
+	Versions versions.ClientService
+
 	Transport runtime.ClientTransport
+}
+
+// SetTransport changes the transport on the client and all its subresources
+func (c *AssistedInstall) SetTransport(transport runtime.ClientTransport) {
+	c.Transport = transport
+	c.Events.SetTransport(transport)
+	c.Installer.SetTransport(transport)
+	c.Versions.SetTransport(transport)
 }

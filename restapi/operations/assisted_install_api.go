@@ -88,7 +88,7 @@ func NewAssistedInstallAPI(spec *loads.Document) *AssistedInstallAPI {
 		InstallerInstallClusterHandler: installer.InstallClusterHandlerFunc(func(params installer.InstallClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation installer.InstallCluster has not yet been implemented")
 		}),
-		InstallerListClustersHandler: installer.ListClustersHandlerFunc(func(params installer.ListClustersParams) middleware.Responder {
+		InstallerListClustersHandler: installer.ListClustersHandlerFunc(func(params installer.ListClustersParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation installer.ListClusters has not yet been implemented")
 		}),
 		VersionsListComponentVersionsHandler: versions.ListComponentVersionsHandlerFunc(func(params versions.ListComponentVersionsParams) middleware.Responder {
@@ -124,6 +124,13 @@ func NewAssistedInstallAPI(spec *loads.Document) *AssistedInstallAPI {
 		InstallerUploadClusterIngressCertHandler: installer.UploadClusterIngressCertHandlerFunc(func(params installer.UploadClusterIngressCertParams) middleware.Responder {
 			return middleware.NotImplemented("operation installer.UploadClusterIngressCert has not yet been implemented")
 		}),
+
+		// Applies when the "user" header is set
+		UserAuth: func(token string) (interface{}, error) {
+			return nil, errors.NotImplemented("api key auth (user) user from header param [user] has not yet been implemented")
+		},
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -159,6 +166,13 @@ type AssistedInstallAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+
+	// UserAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key user provided in the header
+	UserAuth func(string) (interface{}, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
 
 	// InstallerCancelInstallationHandler sets the operation handler for the cancel installation operation
 	InstallerCancelInstallationHandler installer.CancelInstallationHandler
@@ -281,6 +295,10 @@ func (o *AssistedInstallAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.UserAuth == nil {
+		unregistered = append(unregistered, "UserAuth")
+	}
+
 	if o.InstallerCancelInstallationHandler == nil {
 		unregistered = append(unregistered, "installer.CancelInstallationHandler")
 	}
@@ -374,12 +392,21 @@ func (o *AssistedInstallAPI) ServeErrorFor(operationID string) func(http.Respons
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *AssistedInstallAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+		case "user":
+			scheme := schemes[name]
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, o.UserAuth)
+
+		}
+	}
+	return result
 }
 
 // Authorizer returns the registered authorizer
 func (o *AssistedInstallAPI) Authorizer() runtime.Authorizer {
-	return nil
+	return o.APIAuthorizer
 }
 
 // ConsumersFor gets the consumers for the specified media types.

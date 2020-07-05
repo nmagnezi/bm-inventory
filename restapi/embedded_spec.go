@@ -38,6 +38,11 @@ func init() {
   "paths": {
     "/clusters": {
       "get": {
+        "security": [
+          {
+            "user": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -48,6 +53,12 @@ func init() {
             "description": "Success.",
             "schema": {
               "$ref": "#/definitions/cluster-list"
+            }
+          },
+          "401": {
+            "description": "Error.",
+            "schema": {
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
@@ -2295,6 +2306,13 @@ func init() {
       }
     }
   },
+  "securityDefinitions": {
+    "user": {
+      "type": "apiKey",
+      "name": "user",
+      "in": "header"
+    }
+  },
   "tags": [
     {
       "description": "Assisted bare metal installation",
@@ -2323,6 +2341,11 @@ func init() {
   "paths": {
     "/clusters": {
       "get": {
+        "security": [
+          {
+            "user": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -2333,6 +2356,12 @@ func init() {
             "description": "Success.",
             "schema": {
               "$ref": "#/definitions/cluster-list"
+            }
+          },
+          "401": {
+            "description": "Error.",
+            "schema": {
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
@@ -4581,6 +4610,13 @@ func init() {
           "type": "string"
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "user": {
+      "type": "apiKey",
+      "name": "user",
+      "in": "header"
     }
   },
   "tags": [
