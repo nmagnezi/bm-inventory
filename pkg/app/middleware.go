@@ -6,7 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// WithMetricsResponderMiddleware Returns middleware which responds to /metrics endpoint with the prometheus metrics
+// WithMecp tricsResponderMiddleware Returns middleware which responds to /metrics endpoint with the prometheus metrics
 // of the service
 func WithMetricsResponderMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

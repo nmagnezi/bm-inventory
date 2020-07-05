@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/filanov/bm-inventory/pkg/auth"
 	"net/http"
 	"time"
 
@@ -39,6 +40,8 @@ import (
 
 	"github.com/filanov/bm-inventory/pkg/thread"
 	"github.com/filanov/bm-inventory/restapi"
+	"github.com/gorilla/mux"
+
 )
 
 func init() {
@@ -139,6 +142,13 @@ func main() {
 
 	events := events.NewApi(eventsHandler, logrus.WithField("pkg", "eventsApi"))
 
+	var authMiddleware auth.JWTMiddleware = &auth.AuthMiddlewareMock{}
+	//TODO(nmagnezi): fix env
+	//if env().Config.Server.EnableJWT {
+	//	authMiddleware, err = auth.NewAuthMiddleware(env().Config.Server.JwkCertURL, env().Config.Server.JwkCertCA)
+	//	check(err, "Unable to create auth middleware")
+	//}
+
 	h, err := restapi.Handler(restapi.Config{
 		InstallerAPI:      bm,
 		EventsAPI:         events,
@@ -149,6 +159,8 @@ func main() {
 	})
 	h = app.WithMetricsResponderMiddleware(h)
 	h = app.WithHealthMiddleware(h)
+	h.Use(authMiddleware.AuthenticateAccountJWT)
+
 
 	h = requestid.Middleware(h)
 	if err != nil {
