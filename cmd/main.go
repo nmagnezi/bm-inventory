@@ -26,6 +26,7 @@ import (
 	"github.com/filanov/bm-inventory/internal/host"
 	"github.com/filanov/bm-inventory/models"
 	"github.com/filanov/bm-inventory/pkg/app"
+	"github.com/filanov/bm-inventory/pkg/auth"
 	"github.com/filanov/bm-inventory/pkg/job"
 	"github.com/filanov/bm-inventory/pkg/requestid"
 	awsS3Client "github.com/filanov/bm-inventory/pkg/s3Client"
@@ -49,6 +50,7 @@ func init() {
 }
 
 var Options struct {
+	Auth                        auth.Config
 	BMConfig                    bminventory.Config
 	DBHost                      string `envconfig:"DB_HOST" default:"mariadb"`
 	DBPort                      string `envconfig:"DB_PORT" default:"3306"`
@@ -115,7 +117,7 @@ func main() {
 	if err = db.AutoMigrate(&models.Host{}, &common.Cluster{}, &events.Event{}).Error; err != nil {
 		log.Fatal("failed to auto migrate, ", err)
 	}
-
+	authHandler := auth.NewAuthHandler(Options.Auth, (log.WithField("pkg", "auth")))
 	versionHandler := versions.NewHandler(Options.Versions)
 	domainHandler := domains.NewHandler(Options.BMConfig.BaseDNSDomains)
 	eventsHandler := events.New(db, log.WithField("pkg", "events"))
@@ -162,14 +164,16 @@ func main() {
 	} else {
 		log.Info("Disabled image expiration monitor")
 	}
-
 	h, err := restapi.Handler(restapi.Config{
-		InstallerAPI:      bm,
-		EventsAPI:         events,
-		Logger:            log.Printf,
-		VersionsAPI:       versionHandler,
-		ManagedDomainsAPI: domainHandler,
-		InnerMiddleware:   metrics.WithMatchedRoute(log.WithField("pkg", "matched-h"), prometheusRegistry),
+		AuthAgentAuth:       authHandler.AuthAgentAuth,
+		AuthUserAuth:        authHandler.AuthUserAuth,
+		APIKeyAuthenticator: authHandler.CreateAuthenticator(),
+		InstallerAPI:        bm,
+		EventsAPI:           events,
+		Logger:              log.Printf,
+		VersionsAPI:         versionHandler,
+		ManagedDomainsAPI:   domainHandler,
+		InnerMiddleware:     metrics.WithMatchedRoute(log.WithField("pkg", "matched-h"), prometheusRegistry),
 	})
 	h = app.WithMetricsResponderMiddleware(h)
 	h = app.WithHealthMiddleware(h)

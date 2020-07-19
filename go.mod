@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
 	github.com/aws/aws-sdk-go v1.32.6
 	github.com/danielerez/go-dns-client v0.0.0-20200629124827-e4a32ed16a29
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/filanov/stateswitch v0.0.0-20200513095115-051501b05b45
 	github.com/go-openapi/errors v0.19.6
 	github.com/go-openapi/loads v0.19.5
@@ -14,6 +15,7 @@ require (
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.19.9
 	github.com/go-openapi/validate v0.19.10
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/mock v1.2.0
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/gorm v1.9.12
