@@ -465,6 +465,14 @@ func init() {
     },
     "/clusters/{cluster_id}/downloads/files": {
       "get": {
+        "security": [
+          {
+            "userAuth": []
+          },
+          {
+            "agentAuth": []
+          }
+        ],
         "produces": [
           "application/octet-stream"
         ],
@@ -767,6 +775,11 @@ func init() {
         }
       },
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -1060,6 +1073,11 @@ func init() {
     },
     "/clusters/{cluster_id}/hosts/{host_id}/instructions": {
       "get": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -1103,6 +1121,11 @@ func init() {
         }
       },
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -1158,6 +1181,11 @@ func init() {
     },
     "/clusters/{cluster_id}/hosts/{host_id}/progress": {
       "put": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -1199,6 +1227,11 @@ func init() {
     },
     "/clusters/{cluster_id}/uploads/ingress-cert": {
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -2582,6 +2615,23 @@ func init() {
       }
     }
   },
+  "securityDefinitions": {
+    "agentAuth": {
+      "type": "apiKey",
+      "name": "X-Secret-Key",
+      "in": "header"
+    },
+    "userAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "userAuth": []
+    }
+  ],
   "tags": [
     {
       "description": "Assisted bare metal installation",
@@ -3037,6 +3087,14 @@ func init() {
     },
     "/clusters/{cluster_id}/downloads/files": {
       "get": {
+        "security": [
+          {
+            "userAuth": []
+          },
+          {
+            "agentAuth": []
+          }
+        ],
         "produces": [
           "application/octet-stream"
         ],
@@ -3339,6 +3397,11 @@ func init() {
         }
       },
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -3632,6 +3695,11 @@ func init() {
     },
     "/clusters/{cluster_id}/hosts/{host_id}/instructions": {
       "get": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -3675,6 +3743,11 @@ func init() {
         }
       },
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -3730,6 +3803,11 @@ func init() {
     },
     "/clusters/{cluster_id}/hosts/{host_id}/progress": {
       "put": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -3771,6 +3849,11 @@ func init() {
     },
     "/clusters/{cluster_id}/uploads/ingress-cert": {
       "post": {
+        "security": [
+          {
+            "agentAuth": []
+          }
+        ],
         "tags": [
           "installer"
         ],
@@ -5160,6 +5243,23 @@ func init() {
       }
     }
   },
+  "securityDefinitions": {
+    "agentAuth": {
+      "type": "apiKey",
+      "name": "X-Secret-Key",
+      "in": "header"
+    },
+    "userAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "userAuth": []
+    }
+  ],
   "tags": [
     {
       "description": "Assisted bare metal installation",
